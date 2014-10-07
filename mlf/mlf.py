@@ -55,7 +55,10 @@ def plot_some(config):
 def search(config):
     model, param_grid = get_model(config)
     cifar = load(config)
-    gs = GridSearchCV(model, param_grid, n_jobs=1, verbose=4)
+    gs = GridSearchCV(
+        model, param_grid,
+        n_jobs=config.get('n_jobs', 1), verbose=config['verbose'],
+        )
     gs.fit(cifar['data'], cifar['target'])
 
     pprint(sorted(gs.grid_scores_, key=lambda x: -x.mean_validation_score))
@@ -205,6 +208,7 @@ def learning_curve(config):
         title="Learning curve for {}".format(config['model_name']),
         X=dataset['data'],
         y=dataset['target'],
+        n_jobs=config.get('n_jobs', 1),
         )
     plt.show()
 
