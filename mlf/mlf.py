@@ -57,7 +57,9 @@ def search(config):
     cifar = load(config)
     gs = GridSearchCV(
         model, param_grid,
-        n_jobs=config.get('n_jobs', 1), verbose=config['verbose'],
+        cv=config.get('cv', 3),
+        n_jobs=config.get('n_jobs', 1),
+        verbose=config['verbose'],
         )
     gs.fit(cifar['data'], cifar['target'])
 
