@@ -14,20 +14,22 @@ from sklearn.svm import LinearSVC
 
 class HOGFeatures(BaseEstimator):
     def __init__(self, orientations=8, pixels_per_cell=(16, 16),
-                 cells_per_block=(1, 1)):
+                 cells_per_block=(1, 1), image_shape=(32, 32, 3)):
         super(HOGFeatures, self).__init__()
         self.orientations = orientations
         self.pixels_per_cell = pixels_per_cell
         self.cells_per_block = cells_per_block
+        self.image_shape = image_shape
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        X = X.reshape((X.shape[0], 32, 32, 3))
+        X = X.reshape((X.shape[0],) + self.image_shape)
         result = []
         for image in X:
-            image = rgb2gray(image)
+            if len(image.shape) == 3:
+                image = rgb2gray(image)
             features = hog(
                 image,
                 orientations=self.orientations,
