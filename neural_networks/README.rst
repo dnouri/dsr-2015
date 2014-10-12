@@ -18,3 +18,8 @@ Resources for DSR neural networks tutorial
 - `Deep Learning Tutorials <http://www.deeplearning.net/tutorial/>`_
   by Theano Development Team
 
+Software
+========
+
+- https://github.com/dnouri/nntools.git (branch: 'no-lambdas')
+- https://github.com/dnouri/nolearn.git
