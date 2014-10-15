@@ -23,9 +23,10 @@ Software
 
 We'll use Theano, nntools and nolearn.
 
-To install:
+To install::
 
-    cd ~/src
+    cd ~/src  # or wherever you keep your source
+
     git clone https://github.com/Theano/Theano.git
     cd Theano
     python setup.py develop
