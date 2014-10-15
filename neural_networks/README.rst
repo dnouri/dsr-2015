@@ -21,5 +21,22 @@ Resources for DSR neural networks tutorial
 Software
 ========
 
-- https://github.com/dnouri/nntools.git (branch: 'no-lambdas')
-- https://github.com/dnouri/nolearn.git
+We'll use Theano, nntools and nolearn.
+
+To install:
+
+    cd ~/src
+    git clone https://github.com/Theano/Theano.git
+    cd Theano
+    python setup.py develop
+    cd ..
+
+    git clone https://github.com/benanne/nntools.git
+    cd nntools
+    python setup.py develop
+    cd ..
+
+    git clone https://github.com/dnouri/nolearn.git
+    cd nolearn
+    python setup.py develop
+    cd ..
