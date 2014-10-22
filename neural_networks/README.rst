@@ -28,23 +28,9 @@ Resources for DSR neural networks tutorial
 Software
 ========
 
-We'll use Theano, nntools and nolearn.
+We'll use Theano, nntools and nolearn.  We need the latest versions
+from Git.  To install::
 
-To install::
-
-    cd ~/src  # or wherever you keep your source
-
-    git clone https://github.com/Theano/Theano.git
-    cd Theano
-    python setup.py develop
-    cd ..
-
-    git clone https://github.com/benanne/nntools.git
-    cd nntools
-    python setup.py develop
-    cd ..
-
-    git clone https://github.com/dnouri/nolearn.git
-    cd nolearn
-    python setup.py develop
-    cd ..
+    pip install -e git+https://github.com/Theano/Theano.git@master#egg=Theano
+    pip install -e git+https://github.com/benanne/nntools.git@master#egg=nntools
+    pip install -e git+https://github.com/dnouri/nolearn.git@master#egg=nolearn
