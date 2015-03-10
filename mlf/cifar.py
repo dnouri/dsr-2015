@@ -73,7 +73,8 @@ MODELS = {
     }
 
 
-def load(config, test=False):
+def load(csv_filename, folder, img_size, train_set, test_set,
+         test=False, verbose=False, **kw):
     """Given the CSV file name and the folder for the Kaggle CIFAR
     dataset, return a dictionary with the following contents:
 
@@ -81,30 +82,30 @@ def load(config, test=False):
       - data:    n x 3072  array
       - target:  n  array
     """
-    with open(config['csv_filename']) as csv_file:
+    with open(csv_filename) as csv_file:
         labels = list(csv.reader(csv_file))[1:]
 
     if test:
-        idx_start, idx_end = config['test_set']
+        idx_start, idx_end = test_set
     else:
-        idx_start, idx_end = config['train_set']
+        idx_start, idx_end = train_set
 
     labels = labels[idx_start:idx_end]
 
     filenames = [
-        os.path.join(config['folder'], "{}.png".format(id))
+        os.path.join(folder, "{}.png".format(id))
         for id, label in labels
         ]
     target = [label for id, label in labels]
 
     n_images = len(filenames)
-    images = np.zeros((n_images,) + config['img_size'], dtype=np.uint8)
+    images = np.zeros((n_images,) + img_size, dtype=np.uint8)
 
     for index, filename in enumerate(filenames):
         image = imread(filename)
         images[index, :, :] = image
 
-    if config['verbose']:
+    if verbose:
         print "Loaded {} images.".format(n_images)
 
     return {

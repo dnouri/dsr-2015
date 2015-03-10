@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
-from nntools import layers
+from lasagne import layers
 from nolearn.nntools import NeuralNet
-from nntools.nonlinearities import softmax
+from lasagne.nonlinearities import softmax
 import numpy as np
 from sklearn.datasets import fetch_mldata
 from sklearn.utils import shuffle
@@ -112,7 +112,7 @@ MODELS = {
             update_learning_rate=0.01,
             update_momentum=0.9,
 
-            input_shape=(128, 784),
+            input_shape=(None, 784),
             hidden1_num_units=128,
             hidden2_num_units=128,
             output_num_units=10,
@@ -134,14 +134,12 @@ MODELS = {
         # neurons in the two hidden layers.  Or maybe it's a better
         # idea to increase the number of training examples?  (See
         # mnist-config.py.)
-
-        # Another thing to try out is dropout!
         {},
         ),
 }
 
 
-def load(config, test=False):
+def load(train_set, test_set, test=False, **cfg):
     """Load MNIST dataset using scikit-learn.  Returns a dict with the
     following entries:
 
@@ -152,11 +150,12 @@ def load(config, test=False):
     dataset = fetch_mldata('mnist-original')
     X, y = dataset.data, dataset.target
     X = X.astype(np.float32) / 255.0
+    y = y.astype(np.int32)
 
     if test:
-        idx_start, idx_end = config['test_set']
+        idx_start, idx_end = test_set
     else:
-        idx_start, idx_end = config['train_set']
+        idx_start, idx_end = train_set
 
     X, y = shuffle(X, y, random_state=42)
     X = X[idx_start:idx_end]

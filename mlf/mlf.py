@@ -15,7 +15,6 @@ from flask import render_template
 from matplotlib import pyplot as plt
 import numpy as np
 from sklearn.grid_search import GridSearchCV
-#from sklearn.learning_curve import learning_curve as sklearn_learning_curve
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from skimage.io import imread
@@ -25,21 +24,21 @@ from skimage.transform import resize
 app = Flask(__name__)
 
 
-def load(config, test=False):
-    module, name = config['loader'].rsplit('.', 1)
+def load(loader, test=False, **cfg):
+    module, name = loader.rsplit('.', 1)
     loader = getattr(importlib.import_module(module), name)
-    return loader(config, test=test)
+    return loader(test=test, **cfg)
 
 
-def get_model(config):
-    module, name = config['models'].rsplit('.', 1)
+def get_model(models, model_name, **cfg):
+    module, name = models.rsplit('.', 1)
     models = getattr(importlib.import_module(module), name)
-    return models[config['model_name']]
+    return models[model_name]
 
 
-def plot_some(config):
-    cifar = load(config)
-    n_images = cifar['images'].shape[0]
+def plot_some(**cfg):
+    dataset = load(**cfg)
+    n_images = dataset['images'].shape[0]
 
     fig = plt.figure(figsize=(6, 6))
     fig.subplots_adjust(
@@ -47,41 +46,41 @@ def plot_some(config):
 
     for i, j in enumerate(np.random.choice(n_images, 64)):
         ax = fig.add_subplot(8, 8, i + 1, xticks=[], yticks=[])
-        ax.imshow(cifar['images'][j])
-        ax.text(0, 7, str(cifar['target'][j]))
+        ax.imshow(dataset['images'][j])
+        ax.text(0, 7, str(dataset['target'][j]))
     plt.show()
 
 
-def search(config):
-    model, param_grid = get_model(config)
-    cifar = load(config)
+def search(model_name, cv=3, n_jobs=1, verbose=4, **cfg):
+    model, param_grid = get_model(model_name=model_name, **cfg)
+    dataset = load(**cfg)
     gs = GridSearchCV(
         model, param_grid,
-        cv=config.get('cv', 3),
-        n_jobs=config.get('n_jobs', 1),
-        verbose=config['verbose'],
+        cv=cv,
+        n_jobs=n_jobs,
+        verbose=verbose,
         )
-    gs.fit(cifar['data'], cifar['target'])
+    gs.fit(dataset['data'], dataset['target'])
 
     pprint(sorted(gs.grid_scores_, key=lambda x: -x.mean_validation_score))
 
     now_str = datetime.now().isoformat().replace(':', '-')
-    fname_out = '{}-{}.pickle'.format(config['model_name'], now_str)
+    fname_out = '{}-{}.pickle'.format(model_name, now_str)
     with open(fname_out, 'wb') as fout:
         cPickle.dump(gs, fout, -1)
 
     print "Saved model to {}".format(fname_out)
 
 
-def evaluate(config):
-    with open(config['model_filename'], 'rb') as fin:
+def evaluate(model_filename, **cfg):
+    with open(model_filename, 'rb') as fin:
         model = cPickle.load(fin)
 
-    cifar = load(config, test=True)
-    data = cifar['data']
-    images = cifar.get('images')
-    y_true = cifar['target']
-    target_names = sorted(np.unique(y_true))
+    dataset = load(test=True, **cfg)
+    data = dataset['data']
+    images = dataset.get('images')
+    y_true = dataset['target']
+    target_names = map(str, sorted(np.unique(y_true)))
 
     if images is not None:
         # Plot some predictions
@@ -101,7 +100,7 @@ def evaluate(config):
 
             ax.text(0, 7, predicted, color=color)
 
-    y_pred = model.predict(cifar['data'])
+    y_pred = model.predict(dataset['data'])
 
     # Confusion matrix
     cm = confusion_matrix(y_true, y_pred)
@@ -118,14 +117,14 @@ def evaluate(config):
     plt.show()
 
 
-def classify(config, image_filename):
+def classify(image_filename, model_filename, **cfg):
     """Given the path to a trained model `model_filename` and path to
     a JPG or PNG image `image_filename`, output the predicted class.
 
     This function will accept images of any size and scale them down
     to 32x32.
     """
-    with open(config['model_filename'], 'rb') as fin:
+    with open(model_filename, 'rb') as fin:
         model = cPickle.load(fin)
 
     # load and resize image
@@ -154,10 +153,10 @@ def web_post():
     return jsonify(prediction=predicted)
 
 
-def flask(config):
+def flask(model_filename, **cfg):
     global _LOADED_MODEL
 
-    with open(config['model_filename'], 'rb') as fin:
+    with open(model_filename, 'rb') as fin:
         _LOADED_MODEL = cPickle.load(fin)
 
     app.run(debug=True)
@@ -171,13 +170,15 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
     Taken from
     http://scikit-learn.org/stable/modules/learning_curve.html
     """
+    from sklearn.learning_curve import learning_curve  # soft dependency
+
     plt.figure()
     if ylim is not None:
         plt.ylim(*ylim)
     plt.title(title)
     plt.xlabel("Training examples")
     plt.ylabel("Score")
-    train_sizes, train_scores, test_scores = sklearn_learning_curve(
+    train_sizes, train_scores, test_scores = learning_curve(
         estimator, X, y, cv=cv, train_sizes=train_sizes,
         n_jobs=n_jobs, verbose=1,
         )
@@ -201,16 +202,16 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
     return plt
 
 
-def learning_curve(config):
-    model = get_model(config)[0]
-    dataset = load(config)
+def learning_curve(model_name, n_jobs=1, **cfg):
+    model = get_model(model_name=model_name, **cfg)[0]
+    dataset = load(**cfg)
 
     plt = plot_learning_curve(
         model,
-        title="Learning curve for {}".format(config['model_name']),
+        title="Learning curve for {}".format(model_name),
         X=dataset['data'],
         y=dataset['target'],
-        n_jobs=config.get('n_jobs', 1),
+        n_jobs=n_jobs,
         )
     plt.show()
 
@@ -232,5 +233,5 @@ if __name__ == '__main__':
     if func is None:
         _usage_and_exit()
 
-    config = _load_config(sys.argv[2])
-    func(config, *sys.argv[3:])
+    cfg = _load_config(sys.argv[2])
+    func(*sys.argv[3:], **cfg)

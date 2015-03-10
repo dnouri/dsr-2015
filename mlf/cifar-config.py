@@ -1,4 +1,5 @@
 {
+    'n_jobs': -1,
     'verbose': True,
 
     'csv_filename': '/home/daniel/data/cifar-10-kaggle/trainLabels.csv',
