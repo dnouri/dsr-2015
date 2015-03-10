@@ -4,6 +4,9 @@ from nolearn.nntools import NeuralNet
 from lasagne.nonlinearities import softmax
 import numpy as np
 from sklearn.datasets import fetch_mldata
+from sklearn.decomposition import RandomizedPCA
+from sklearn.pipeline import Pipeline
+from sklearn.svm import LinearSVC
 from sklearn.utils import shuffle
 
 
@@ -101,6 +104,14 @@ class PlotWeights(object):
 
 
 MODELS = {
+    'linearsvc-pca': (
+        Pipeline([
+            ('pca', RandomizedPCA(n_components=100, whiten=True)),
+            ('clf', LinearSVC(C=1.0)),
+            ]),
+        {'pca__n_components': [10, 30, 100], 'clf__C': [0.01, 0.1, 1.0]},
+        ),
+
     'nn': (
         NeuralNet(
             layers=[

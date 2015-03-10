@@ -3,7 +3,8 @@
     'cv': 2,
 
     'models': 'mnist.MODELS',
-    'model_name': 'nn',
+    'model_name': 'linearsvc-pca',
+    # 'model_name': 'nn',
 
     'loader': 'mnist.load',
     'train_set': (0, 10000),
