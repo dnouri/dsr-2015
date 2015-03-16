@@ -51,13 +51,28 @@ def plot_some(**cfg):
     plt.show()
 
 
-def search(model_name, cv=3, n_jobs=1, verbose=4, **cfg):
+def train(model_name, **cfg):
+    model = get_model(model_name=model_name, **cfg)[0]
+    dataset = load(**cfg)
+    X, y = dataset['data'], dataset['target']
+    model.fit(X, y)
+    # print("Score on train set: {:.3f}".format(model.score(X, y)))
+    now_str = datetime.now().isoformat().replace(':', '-')
+    fname_out = '{}-{}.pickle'.format(model_name, now_str)
+    with open(fname_out, 'wb') as fout:
+        cPickle.dump(model, fout, -1)
+
+    print "Saved model to {}".format(fname_out)
+
+
+def search(model_name, cv=3, n_jobs=1, verbose=4, scoring='accuracy', **cfg):
     model, param_grid = get_model(model_name=model_name, **cfg)
     dataset = load(**cfg)
     gs = GridSearchCV(
         model, param_grid,
         cv=cv,
         n_jobs=n_jobs,
+        scoring=scoring,
         verbose=verbose,
         )
     gs.fit(dataset['data'], dataset['target'])

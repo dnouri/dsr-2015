@@ -26,6 +26,8 @@ The complete list of commands is:
   defined in the configuration file.  The model with the best score is
   then pickled to disk.
 
+- *train* trains the model defined in the configuration file.
+
 - *evaluate* allows to evaluate a trained model (created by running
   *search*) on the held-out test set defined in the configuration file.
   It will plot a confusion matrix and print a classification report.
