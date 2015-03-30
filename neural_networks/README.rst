@@ -25,12 +25,4 @@ Resources for DSR neural networks tutorial
 - `Deep Learning Tutorials <http://www.deeplearning.net/tutorial/>`_
   by Theano Development Team
 
-Software
-========
-
-We'll use Theano, nntools and nolearn.  We need the latest versions
-from Git.  To install::
-
-    pip install -e git+https://github.com/Theano/Theano.git@master#egg=Theano
-    pip install -e git+https://github.com/benanne/nntools.git@master#egg=nntools
-    pip install -e git+https://github.com/dnouri/nolearn.git@master#egg=nolearn
+- `Using convolutional neural nets to detect facial keypoints tutorial <http://danielnouri.org/notes/2014/12/17/using-convolutional-neural-nets-to-detect-facial-keypoints-tutorial/>`_
