@@ -12,7 +12,7 @@ from pyquery import PyQuery as pq
 MAIN_URL = 'http://www-news.iaea.org/EventList.aspx?ps=100&pno=0'
 
 
-def get_news_links(url):
+def get_event_links(url):
     doc = pq(url).make_links_absolute()
     result = []
     for anchor in doc("h4 a"):
@@ -57,8 +57,8 @@ def test_get_event_info():
     assert info['location'] == 'TARAPUR-4'
     assert info['type'] == 'Power Reactor'
     assert info['ines_rating'] == 1
-    assert info['description'].startswith('At  TAPS-4, irradiated Cobalt Self')
-    assert info['description'].endswith('of 15 mSv  for a temporary worker.')
+    assert info['description'].startswith('At TAPS-4, irradiated Cobalt Self')
+    assert info['description'].endswith('of 15 mSv for a temporary worker.')
     assert info['beyond_authorized_limits'] is False
     assert info['public_exposure'] is False
     assert info['worker_exposure'] is True
@@ -68,12 +68,13 @@ def test_get_event_info():
 
 
 def main():
-    urls = get_news_links(MAIN_URL)
+    urls = get_event_links(MAIN_URL)
     pool = ThreadPool(4)
 
     t0 = time()
     results = pool.map(get_event_info, urls)
-    print("Scraping took {:.2f} seconds".format(time() - t0))
+    print("Scraping of {} events took {:.2f} seconds".format(
+        len(urls), time() - t0))
 
     # Make a DataFrame out of the results:
     df = DataFrame(results)
